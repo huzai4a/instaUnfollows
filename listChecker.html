@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare the Lists</title>
+    <link rel="stylesheet" href="listChecker.css">
+</head>
+<body>
+    <div class="main">
+        <div class="main-container">
+            <h1 class="title">
+                Compare Lists
+            </h1>
+            <p class="text">
+                This page takes a JSON file and tells you the elements in the file from one list that don't appear in the other list.
+            </p>
+            <div class="file-upload-container">
+                <label for="choose-file">Choose File</label>
+                <input type="file" name="" class="choose-file-btn" id="choose-file" accept="application/JSON">
+                <button class="submit-btn">Submit</button>
+            </div>
+        </div>
+        <div class="result-container">
+            <h1 class="title">
+                Results:
+            </h1>
+            <div class="names">
+
+            </div>
+        </div>
+    </div>
+    
+
+
+    <script src="listChecker.js" type="module"></script>
+</body>
+</html>
