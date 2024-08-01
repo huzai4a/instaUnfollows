@@ -11,3 +11,26 @@ const followingObjects = await following_promise.json();
 // console.log(followersObjects[0].string_list_data[0]);
 // console.log(followingObjects.relationships_following[0].string_list_data[0]);
 
+// I can't keep this as an object with both these values since I need to use .includes (only for arrays)
+let followersList = [];
+let followersTimestamp = [];
+
+followersObjects.forEach((listItem)=>{
+    followersList.push(listItem.string_list_data[0].value);
+    followersTimestamp.push(dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'));
+});
+
+// console.log(followersTimestamp);
+// console.log(followersList);
+
+// I can't keep this as an object with both these values since I need to use .includes (only for arrays)
+let followingList = [];
+let followingTimestamp = [];
+
+followingObjects.relationships_following.forEach((listItem)=>{
+    followingList.push(listItem.string_list_data[0].value);
+    followingTimestamp.push(dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'));
+});
+
+// console.log(followingList);
+// console.log(followingTimestamp);
