@@ -6,7 +6,7 @@ const following_promise = await fetch('./data/instagram-huzai4a/connections/foll
 // these take the above promises and set the variables to lists from them
 const followersObjects = await followers_promise.json();
 const followingObjects = await following_promise.json();
-
+console.log('hello')
 // testing
 // console.log(followersObjects[0].string_list_data[0]);
 // console.log(followingObjects.relationships_following[0].string_list_data[0]);
