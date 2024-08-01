@@ -13,11 +13,9 @@ const followingObjects = await following_promise.json();
 
 // I can't keep this as an object with both these values since I need to use .includes (only for arrays)
 let followersList = [];
-let followersTimestamp = [];
 
 followersObjects.forEach((listItem)=>{
     followersList.push(listItem.string_list_data[0].value);
-    followersTimestamp.push(dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'));
 });
 
 // console.log(followersTimestamp);
@@ -26,10 +24,14 @@ followersObjects.forEach((listItem)=>{
 // I can't keep this as an object with both these values since I need to use .includes (only for arrays)
 let followingList = [];
 let followingTimestamp = [];
+let followingLink = [];
 
 followingObjects.relationships_following.forEach((listItem)=>{
     followingList.push(listItem.string_list_data[0].value);
+    
     followingTimestamp.push(dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'));
+    
+    followingLink.push(listItem.string_list_data[0].href);
 });
 
 // console.log(followingList);
@@ -42,7 +44,7 @@ followingList.forEach((following, index)=>{
     if (!(followersList.includes(following))){
         html+=`
         <p class="text">
-            ig handle: @${following}, followed them on ${followingTimestamp[index]}
+            ig handle: <a href="${followingLink[index]}" target="_blank">@${following}</a>, followed them on ${followingTimestamp[index]}
         </p>
         `;
         count++;
