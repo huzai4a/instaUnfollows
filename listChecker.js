@@ -23,19 +23,20 @@ followersObjects.forEach((listItem)=>{
 
 // I can't keep this as an object with both these values since I need to use .includes (only for arrays)
 let followingList = [];
-let followingTimestamp = [];
-let followingLink = [];
+let extraInfo = [];
 
 followingObjects.relationships_following.forEach((listItem)=>{
     followingList.push(listItem.string_list_data[0].value);
     
-    followingTimestamp.push(dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'));
-    
-    followingLink.push(listItem.string_list_data[0].href);
+    extraInfo.push({
+        timestamp: dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'),
+        link: listItem.string_list_data[0].href
+    });
 });
 
 // console.log(followingList);
 // console.log(followingTimestamp);
+
 let count = 0;
 let html = '';
 
@@ -44,7 +45,7 @@ followingList.forEach((following, index)=>{
     if (!(followersList.includes(following))){
         html+=`
         <p class="text">
-            ig handle: <a href="${followingLink[index]}" target="_blank">@${following}</a>, followed them on ${followingTimestamp[index]}
+            ig handle: <a href="${extraInfo[index].link}" target="_blank">@${following}</a>, followed them on ${extraInfo[index].timestamp}
         </p>
         `;
         count++;
