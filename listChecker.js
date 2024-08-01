@@ -34,3 +34,20 @@ followingObjects.relationships_following.forEach((listItem)=>{
 
 // console.log(followingList);
 // console.log(followingTimestamp);
+let count = 0;
+let html = '';
+
+followingList.forEach((following, index)=>{
+    // if someones im following is NOT in followersList
+    if (!(followersList.includes(following))){
+        html+=`
+        <p class="text">
+            ig handle: @${following}, followed them on ${followingTimestamp[index]}
+        </p>
+        `;
+        count++;
+    }
+});
+
+document.querySelector('.js-counter').innerHTML = `Results: (${count} found)`;
+document.querySelector('.names').innerHTML = html;
