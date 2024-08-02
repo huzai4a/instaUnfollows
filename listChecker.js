@@ -6,7 +6,7 @@ const following_promise = await fetch('./data/instagram-huzai4a/connections/foll
 // these take the above promises and set the variables to lists from them
 const followersObjects = await followers_promise.json();
 const followingObjects = await following_promise.json();
-console.log('hello')
+
 // testing
 // console.log(followersObjects[0].string_list_data[0]);
 // console.log(followingObjects.relationships_following[0].string_list_data[0]);
@@ -14,8 +14,19 @@ console.log('hello')
 // I can't keep this as an object with both these values since I need to use .includes (only for arrays)
 let followersList = [];
 
-let followingList = [];
-let extraInfo = [];
+let followingList = JSON.parse(localStorage.getItem('followingList')) || initializeFollowing('followingList');
+let extraInfo = JSON.parse(localStorage.getItem('extraInfo')) || initializeFollowing('extraInfo');
+
+function iniatializeFollowing (returnType){
+    let tempFollowingList = [];
+    let tempExtraInfo = [];
+
+    if (returnType === 'followingList'){
+        return tempFollowingList;
+    } else{
+        return tempExtraInfo;
+    }
+}
 
 let count = 0;
 let html = '';
@@ -52,7 +63,7 @@ followingList.forEach((following, index)=>{
             <p class="text">
                 ig handle: <a href="${extraInfo[index].link}" target="_blank">@${following}</a>, followed them on ${extraInfo[index].timestamp}
             </p>
-            <button class="remove-option js-remove" data-remove-value="temp">Remove</button>
+            <span class="remove-option js-remove" data-ig-handle="${following}">Remove</span>
         </div>
         `;
         count++;
@@ -61,3 +72,23 @@ followingList.forEach((following, index)=>{
 
 document.querySelector('.js-counter').innerHTML = `Results: (${count} found)`;
 document.querySelector('.names').innerHTML = html;
+
+// note: make sure to always have event listeners AFTER the html is sent in
+document.querySelectorAll('.js-remove').forEach((link)=>{
+    link.addEventListener('click', () => {
+        // note: whenever using link.dataset the name should be camelCase of the data-______
+        const { igHandle } = link.dataset;
+        const index = followingList.indexOf(igHandle);
+        
+        // removes corresponding ig from the list of nonMutuals
+        followingList.splice(index, 1);
+        extraInfo.splice(index, 1);
+
+        saveToStorage();
+    });
+});
+
+function saveToStorage(){
+    localStorage.setItem('followingList', JSON.stringify(followersList));
+    localStorage.setItem('extraInfo', JSON.stringify(extraInfo));
+}
