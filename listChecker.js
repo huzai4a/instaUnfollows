@@ -68,6 +68,11 @@ function renderResults(){
         }
     });
     
+    // if null
+    if (!html){
+        html = `Everybody that you follow has followed you back :)`;
+    }
+    
     document.querySelector('.js-counter').innerHTML = `Results: (${count} found)`;
     document.querySelector('.names').innerHTML = html;
 }
