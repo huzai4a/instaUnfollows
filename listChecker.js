@@ -15,7 +15,7 @@ let followersList = [];
 followersObjects.forEach((listItem)=>{
     followersList.push(listItem.string_list_data[0].value);
 });
-
+console.log(followersList)
 let followingObj = {};
 // note: had a problem where after deleting a handle the count wasn't changing, this kind of feels lazy using a global var to modify count directly 
 let count = 0;
