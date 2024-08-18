@@ -64,6 +64,7 @@ if(localStorage.getItem('followingObj')){
 // just for testing
 setTimeout(()=>{
     renderResults();
+    setEventListeners();
 }, 300);
 
 function initializeFollowing (){
@@ -115,32 +116,36 @@ function renderResults(){
 
 // saves followingObj
 function saveToStorage(){
+    // console.log('save call');
     localStorage.setItem('followingObj', JSON.stringify(followingObj));
 }
 
-// note: make sure to always have event listeners AFTER the html is sent in
-document.querySelectorAll('.js-remove').forEach((link)=>{
-    
-    link.addEventListener('click', () => {
-        // put inside a timeout for 0.1s so multiple buttons aren't clicked on the same click
-        setTimeout(()=>{
-            // note: whenever using link.dataset the name should be camelCase of the data-______
-            const { igHandle } = link.dataset;
-            const index = followingObj.followingList.indexOf(igHandle);
-            
-            // removes corresponding ig from the list of nonMutuals
-            followingObj.followingList.splice(index, 1);
-            followingObj.extraInfo.splice(index, 1);
-    
-            saveToStorage();
-    
-            count--;
-            document.querySelector('.js-counter').innerHTML = `Results: (${count} found)`;
-            // removes the handle from the page by using the remove buttons parent div which also holds the handle text
-            link.closest('.ig-line').innerHTML = '';
-        }, 100);
+// note: this needed to be called after render results so that the buttons were actually created before the event listeners could be added
+function setEventListeners(){
+    // note: make sure to always have event listeners AFTER the html is sent in
+    document.querySelectorAll('.js-remove').forEach((link)=>{
+        
+        link.addEventListener('click', () => {
+            // put inside a timeout for 0.1s so multiple buttons aren't clicked on the same click
+            setTimeout(()=>{
+                // note: whenever using link.dataset the name should be camelCase of the data-______
+                const { igHandle } = link.dataset;
+                const index = followingObj.followingList.indexOf(igHandle);
+                
+                // removes corresponding ig from the list of nonMutuals
+                followingObj.followingList.splice(index, 1);
+                followingObj.extraInfo.splice(index, 1);
+        
+                saveToStorage();
+        
+                count--;
+                document.querySelector('.js-counter').innerHTML = `Results: (${count} found)`;
+                // removes the handle from the page by using the remove buttons parent div which also holds the handle text
+                link.closest('.ig-line').innerHTML = '';
+            }, 100);
+        });
     });
-});
+}
 
 
 
