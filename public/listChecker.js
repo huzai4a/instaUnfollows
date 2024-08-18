@@ -7,17 +7,15 @@ let followingObjects = [];
 
 // fetches from server-side (server.js)
 try{
-    const followers_promise = await fetch('/followers-fetch');
-    const followersObjects = await followers_promise.json();
+    const followersObjects = await fetch('/followers-fetch').then(response=>response.json());
+    followingObjects = await fetch('/following-fetch').then(response=>response.json());
 
     // followers list is consistent (the one being compared to)
     followersObjects.forEach((listItem)=>{
         followersList.push(listItem.string_list_data[0].value);
     });
+    
     // console.log(followersList)
-
-    const following_promise = await fetch('/following-fetch');
-    followingObjects = await following_promise.json();
     // console.log(followingObjects)
 } catch (error) {
     // kills rest of the code

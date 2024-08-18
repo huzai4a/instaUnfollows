@@ -32,6 +32,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'listChecker.html'));
 })
 
+// fetch('https://www.instagram.com/huzai4a').then(response=>console.log(response.html()))
+
 // works to stop code on uncaught errors
 process.on('uncaughtException', err =>{
     console.log(`uncaught error, ${err}`)
