@@ -1,6 +1,8 @@
-const express = require('express');
 const path = require('path');
+const fs = require('fs');
+const express = require('express');
 const app = express();
+
 
 
 // used in both following and follower fetches
@@ -30,6 +32,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'listChecker.html'));
 })
 
+// works to stop code on uncaught errors
+process.on('uncaughtException', err =>{
+    console.log(`uncaught error, ${err}`)
+    process.exit(1);
+})
 
 // server starting
 const PORT = 8000

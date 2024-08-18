@@ -1,37 +1,24 @@
-
 import dayjs from 'https://unpkg.com/dayjs@1.11.10/esm/index.js'; // default export 
-// initializing (necessary for node work)
-// const fs = require('fs');
-// const path = require('path');
-// const dayjs = require('dayjs');
 
-/*
-fs.readFile(path.join(dataPath, selectedFile, 'connections', 'followers_and_following', 'following.json'), (err, data)=>{
-    console.log('hello');
-    if (err) throw err;
-    followingObjects = data;
-});
 
-fs.readFile(path.join(dataPath, selectedFile, 'connections', 'followers_and_following', 'followers_1.json'), (err, data)=>{
-    console.log('hello');
-    if (err) throw err;
-    console.log(typeof data)
-    followersObjects = data;
-});    
-*/
+// I can't keep this as an object with both these values since I need to use .includes (only for arrays)
+let followersList = [];
 
-// fetches the promises from the json files
+// gets from server-side (server.js)
 fetch('/followers-fetch').then(response => response.json())
     .then(followersObjects =>{
-        
-    });
-const following_promise = await fetch('/following-fetch');
+        // followers list is consistent (the one being compared to)
+        followersObjects.forEach((listItem)=>{
+            followersList.push(listItem.string_list_data[0].value);
+        });
+    }).catch(error => console.error('Error fetching followers data:', error));
 
+/*OLDCODE
 // these take the above promises and set the variables to lists from them
 const followersObjects = await followers_promise.json();
 const followingObjects = await following_promise.json();
 
-/*
+
 // fetches the promises from the json files
 const followers_promise = await fetch('./data/instagram-huzai4a-2024-08-17-T90Ye0vc/connections/followers_and_following/followers_1.json');
 const following_promise = await fetch('./data/instagram-huzai4a-2024-08-17-T90Ye0vc/connections/followers_and_following/following.json');
@@ -39,19 +26,14 @@ const following_promise = await fetch('./data/instagram-huzai4a-2024-08-17-T90Ye
 // these take the above promises and set the variables to lists from them
 const followersObjects = await followers_promise.json();
 const followingObjects = await following_promise.json();
-*/
 
-
-// I can't keep this as an object with both these values since I need to use .includes (only for arrays)
-let followersList = [];
-
-// console.log(followersObjects)
 
 // followers list is consistent (the one being compared to)
 followersObjects.forEach((listItem)=>{
     followersList.push(listItem.string_list_data[0].value);
 });
 // console.log(followersList)
+*/
 
 let followingObj = {};
 // note: had a problem where after deleting a handle the count wasn't changing, this kind of feels lazy using a global var to modify count directly 
@@ -65,20 +47,27 @@ if(localStorage.getItem('followingObj')){
     followingObj = initializeFollowing();
 }
 
-renderResults();
+// just for testing
+setTimeout(()=>{
+    renderResults();
+}, 30);
 
 function initializeFollowing (){
     let tempFollowingList = [];
     let tempExtraInfo = [];
 
-    followingObjects.relationships_following.forEach((listItem)=>{
-        tempFollowingList.push(listItem.string_list_data[0].value);
-        
-        tempExtraInfo.push({
-            timestamp: dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'),
-            link: listItem.string_list_data[0].href
+    // gets following info from server-side (server.js)
+    fetch('/following-fetch').then(response => response.json())
+    .then(followingObjects =>{
+        followingObjects.relationships_following.forEach((listItem)=>{
+            tempFollowingList.push(listItem.string_list_data[0].value);
+            
+            tempExtraInfo.push({
+                timestamp: dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'),
+                link: listItem.string_list_data[0].href
+            });
         });
-    });
+    }).catch(error => console.error('Error fetching followers data:', error));
 
     // sends an object of the info so that it doesnt
     return {
@@ -146,9 +135,5 @@ document.querySelectorAll('.js-remove').forEach((link)=>{
 
 
 
-// works to stop code on uncaught errors
-process.on('uncaughtException', err =>{
-    console.log(`uncaught error, ${err}`)
-    process.exit(1);
-})
+
 
