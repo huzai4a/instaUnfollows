@@ -3,15 +3,29 @@ import dayjs from 'https://unpkg.com/dayjs@1.11.10/esm/index.js'; // default exp
 
 // I can't keep this as an object with both these values since I need to use .includes (only for arrays)
 let followersList = [];
+let followingObjects = [];
 
-// gets from server-side (server.js)
-fetch('/followers-fetch').then(response => response.json())
-    .then(followersObjects =>{
-        // followers list is consistent (the one being compared to)
-        followersObjects.forEach((listItem)=>{
-            followersList.push(listItem.string_list_data[0].value);
-        });
-    }).catch(error => console.error('Error fetching followers data:', error));
+// fetches from server-side (server.js)
+try{
+    const followers_promise = await fetch('/followers-fetch');
+    const followersObjects = await followers_promise.json();
+
+    // followers list is consistent (the one being compared to)
+    followersObjects.forEach((listItem)=>{
+        followersList.push(listItem.string_list_data[0].value);
+    });
+    // console.log(followersList)
+
+    const following_promise = await fetch('/following-fetch');
+    followingObjects = await following_promise.json();
+    // console.log(followingObjects)
+} catch (error) {
+    // kills rest of the code
+    document.querySelector('.js-counter').innerHTML = `Results: (-)`;
+    document.querySelector('.names').innerHTML = `Error getting the data from the given file: ${error}`;
+    stop();
+}
+
 
 /*OLDCODE
 // these take the above promises and set the variables to lists from them
@@ -50,24 +64,20 @@ if(localStorage.getItem('followingObj')){
 // just for testing
 setTimeout(()=>{
     renderResults();
-}, 30);
+}, 300);
 
 function initializeFollowing (){
     let tempFollowingList = [];
     let tempExtraInfo = [];
 
-    // gets following info from server-side (server.js)
-    fetch('/following-fetch').then(response => response.json())
-    .then(followingObjects =>{
-        followingObjects.relationships_following.forEach((listItem)=>{
-            tempFollowingList.push(listItem.string_list_data[0].value);
-            
-            tempExtraInfo.push({
-                timestamp: dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'),
-                link: listItem.string_list_data[0].href
-            });
+    followingObjects.relationships_following.forEach((listItem)=>{
+        tempFollowingList.push(listItem.string_list_data[0].value);
+        
+        tempExtraInfo.push({
+            timestamp: dayjs.unix(listItem.string_list_data[0].timestamp).format('MMMM D, YYYY'),
+            link: listItem.string_list_data[0].href
         });
-    }).catch(error => console.error('Error fetching followers data:', error));
+    });
 
     // sends an object of the info so that it doesnt
     return {
