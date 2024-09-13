@@ -15,11 +15,11 @@
             <p class="text">
                 This page takes a JSON file and tells you the elements in the file from one list that don't appear in the other list. Feel free to remove any results that are deemed unnecessary. NOTE: as of right now the choose file and submit buttons do nothing, only my own personal instagram list is being used.
             </p>
-            <div class="file-upload-container">
+            <form class="file-upload-container uploadForm">
                 <label for="choose-file">Choose File</label>
-                <input type="file" name="" class="choose-file-btn" id="choose-file" accept="application/JSON">
-                <button class="submit-btn">Submit</button>
-            </div>
+                <input type="file" name="file" class="choose-file-btn js-zip" id="choose-file" accept=".zip,.rar,.7zip">
+                <button type="submit" class="submit-btn">Submit</button>
+            </form>
         </div>
         <div class="result-container">
             <h1 class="title js-counter">
@@ -34,5 +34,17 @@
 
 
     <script src="listChecker.js" type="module"></script>
+    <script type="module" src="formSubmission.js"></script>
+    <script>
+        /*
+        // testing purposes only
+        document.querySelector('.uploadForm').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const myZip = document.querySelector('.js-zip').files;
+            console.log(myZip.item(0));
+        });
+        */
+
+    </script>
 </body>
 </html>

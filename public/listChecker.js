@@ -1,14 +1,15 @@
 import dayjs from 'https://unpkg.com/dayjs@1.11.10/esm/index.js'; // default export 
 
-
+// make the color scheme more like ig***************
 // I can't keep this as an object with both these values since I need to use .includes (only for arrays)
 let followersList = [];
 let followingObjects = [];
 
 // fetches from server-side (server.js)
 try{
-    const followersObjects = await fetch('/followers-fetch').then(response=>response.json());
-    followingObjects = await fetch('/following-fetch').then(response=>response.json());
+    // finishing each command first removes many error possibilities
+    const followersObjects = await fetch('/api/followers-fetch').then(response=>response.json());
+    followingObjects = await fetch('/api/following-fetch').then(response=>response.json());
 
     // followers list is consistent (the one being compared to)
     followersObjects.forEach((listItem)=>{
