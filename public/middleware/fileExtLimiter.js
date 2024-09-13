@@ -1,5 +1,3 @@
-const path = require('path');
-
 function fileExtLimiter (allowedExtArray){
     return (req,res,next)=>{
         const file = req.files;

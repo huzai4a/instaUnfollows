@@ -3,8 +3,14 @@ async function sendZip (){
 
     // check whether user input is of the right type from .find of list of zip types 
     const formData = new FormData();
-    // NOTE: .item just used in node to get the name of the file from the myZip var
-    formData.append(myZip.item(0).name , myZip.item(0));
+
+    // this try catch stops the name from causing an error before tthe middleware gets to respond
+    try {
+        // NOTE: .item just used in node to get the name of the file from the myZip var
+        formData.append(myZip[Object.keys(myZip)].name , myZip[Object.keys(myZip)]);
+    } catch{
+
+    }
 
     // made it for instagram specifically so it can be changed for other sites as well in the future based on the page the user submits from
     const response = await fetch('/api/uploadZip/instagram', {

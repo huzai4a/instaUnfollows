@@ -30,8 +30,8 @@ app.get('/api/followers-fetch', (req, res) => {
 
 app.post('/api/uploadZip/instagram', 
     fileUpload({ createParentPath: true }),
-    fileExtLimiter(['.zip','.rar','.7zip']), 
     filesPayloadExists,
+    fileExtLimiter(['.zip','.rar','.7zip']), 
     fileSizeLimit,
     (req, res) => {
     const zip = req.files;
