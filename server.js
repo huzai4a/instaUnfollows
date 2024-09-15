@@ -9,6 +9,7 @@ const app = express();
 const filesPayloadExists = require(path.join(__dirname, 'public', 'middleware', 'filesPayloadExists'));
 const fileSizeLimit = require(path.join(__dirname, 'public', 'middleware', 'fileSizeLimit'));
 const fileExtLimiter = require(path.join(__dirname, 'public', 'middleware', 'fileExtLimiter'));
+const formatCheck = require(path.join(__dirname, 'public', 'middleware', 'formatCheck'));
 
 
 // used in both following and follower fetches
@@ -35,10 +36,11 @@ app.post('/api/uploadZip/instagram',
     filesPayloadExists,
     fileExtLimiter(['.zip','.rar','.7zip']), 
     fileSizeLimit,
+    formatCheck,
     (req, res) => {
     const zip = req.files;
     // console.log(zip);
-    
+
     return res.status(200).json({ status: 'logged', message: 'logged'});
 });
 
