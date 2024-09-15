@@ -40,8 +40,14 @@ app.post('/api/uploadZip/instagram',
     (req, res) => {
     const zip = req.files;
     // console.log(zip);
+    /*
+    files.mv(dataPath, (err) =>{
+        if(err) return res.status(500).json({ status: 'error', message: err})
+    });
+    */
 
-    return res.status(200).json({ status: 'logged', message: 'logged'});
+    // change message to name of zip extracted when done
+    return res.status(200).json({ status: 'success', message: 'logged'});
 });
 
 // Serve static files from the "public" directory

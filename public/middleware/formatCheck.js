@@ -5,7 +5,7 @@ function formatCheck (req, res, next){
     const name = file[Object.keys(file)].name;
     // note: substring is non inclusive of the last char
     const ig = name.substring(0, name.indexOf('-'));
-    console.log(file[Object.keys(file)])
+
     if (ig === 'instagram'){
         // continue checking after extracting folder to see if theres the required folders
     } else{

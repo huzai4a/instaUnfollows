@@ -24,7 +24,7 @@ async function sendZip (){
     
     console.log(`message: ${json.message}`)
     if (json.message){
-        if (json.message === 'logged'){
+        if (json.status === 'success'){
             document.querySelector('.status-container').classList.remove('failed');
         } else{
             document.querySelector('.js-form-status').innerHTML = `${json.message}`;
