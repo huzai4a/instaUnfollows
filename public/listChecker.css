@@ -55,6 +55,35 @@ label:hover{
 .submit-btn:hover{
     cursor: pointer;
 }
+.status-container{
+    padding: 10px;
+    margin-bottom: 20px;
+    display: none;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100px;
+    min-width: 500px;
+    border: 2px solid #cc0000;
+}
+.error-box{
+    display: flex;
+}
+.red{
+    color: #cc0000;
+}
+h3{
+    /* auto margin on h3 removed */
+    margin:0 !important;
+}
+.warning-img{
+    width: 3em;
+    height: 3em;
+    margin-right: 10px;
+}
+/* Changes the color of the form status message box */
+.failed{
+    display: flex !important;
+}
 
 .ig-line{
     display: flex;

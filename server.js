@@ -2,16 +2,17 @@ const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const fileUpload = require('express-fileupload');
+// const yauzl = require('yauzl');
 const app = express();
 
-// path.join(__dirname, 'public', 'middleware', 'filesPayloadExists')
+// NOTE: HAVING THE ABOVE NEXT IN THE FOR LOOP CAUSES IT TO PEND FOREVER (GENERALLY FOR ALL MIDDLEWARE)
 const filesPayloadExists = require(path.join(__dirname, 'public', 'middleware', 'filesPayloadExists'));
 const fileSizeLimit = require(path.join(__dirname, 'public', 'middleware', 'fileSizeLimit'));
 const fileExtLimiter = require(path.join(__dirname, 'public', 'middleware', 'fileExtLimiter'));
 
 
 // used in both following and follower fetches
-const dataPath = path.join(__dirname,'data');
+const dataPath = path.join(__dirname,'data', 'extracted');
 // eventually i want the userhandle to be user selection (this is the initial step before making the submit form work)
 const userHandle = 'huzai4a';
 // NOTE: find can be used instead of forEach with if
@@ -28,6 +29,7 @@ app.get('/api/followers-fetch', (req, res) => {
     res.json(followersObjects); //send the followingObjects as JSON to the client
 });
 
+// route for submitted files
 app.post('/api/uploadZip/instagram', 
     fileUpload({ createParentPath: true }),
     filesPayloadExists,
@@ -35,9 +37,9 @@ app.post('/api/uploadZip/instagram',
     fileSizeLimit,
     (req, res) => {
     const zip = req.files;
-    console.log(zip);
-
-    return res.json({ status: 'logged', message: 'logged'});
+    // console.log(zip);
+    
+    return res.status(200).json({ status: 'logged', message: 'logged'});
 });
 
 // Serve static files from the "public" directory

@@ -15,6 +15,20 @@
             <p class="text">
                 This page takes a JSON file and tells you the elements in the file from one list that don't appear in the other list. Feel free to remove any results that are deemed unnecessary. NOTE: as of right now the choose file and submit buttons do nothing, only my own personal instagram list is being used.
             </p>
+            <div class="status-container">
+                <div class="error-box">
+                    <img src="./img/warning.svg" alt="warning" class="top-left warning-img">
+                    <div class="text-box">
+                        <h3 class="red">
+                            There was a problem
+                        </h3>
+                        <p class="js-form-status">
+                            
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <form class="file-upload-container uploadForm">
                 <label for="choose-file">Choose File</label>
                 <input type="file" name="file" class="choose-file-btn js-zip" id="choose-file" accept=".zip,.rar,.7zip">

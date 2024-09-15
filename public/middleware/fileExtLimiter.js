@@ -1,8 +1,9 @@
 function fileExtLimiter (allowedExtArray){
+
     return (req,res,next)=>{
         const file = req.files;
         const fileExtensions = [];
-    
+        
         // although this project only allows one upload, this makes the code transferable
         /*
         Object.keys(file).forEach(key=>{
