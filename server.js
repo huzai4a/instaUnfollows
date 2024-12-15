@@ -14,6 +14,7 @@ const formatCheck = require(path.join(__dirname, 'public', 'middleware', 'format
 
 // used in both saving and accessing data files
 const dataPath = path.join(__dirname, 'data');
+let zipName = 'instagram-huzai4a-2024-08-17-T90Ye0vc.zip';
 
 // route for submitted files
 app.post('/api/uploadZip/instagram', 
@@ -24,7 +25,7 @@ app.post('/api/uploadZip/instagram',
     formatCheck,
     (req, res) => {
     const zip = req.files;
-    
+    // zipName = zip[Object.keys(zip)].name;
     /*
     zip[Object.keys(zip)].mv(path.join(dataPath, 'unextracted'), (err) =>{
         if(err) return res.status(500).json({ status: 'error', message: err})
@@ -35,12 +36,13 @@ app.post('/api/uploadZip/instagram',
     return res.status(200).json({ status: 'success', message: 'logged'});
 });
 
-
+extractZip();
 
 // eventually i want the userhandle to be user selection (this is the initial step before making the submit form work)
 const userHandle = 'huzai4a';
 // NOTE: find can be used instead of forEach with if
 const selectedFile = fs.readdirSync(path.join(dataPath, 'extracted')).find(file => file.includes(userHandle));
+// console.log(selectedFile);
 
 //route for listchecker following fetch
 app.get('/api/following-fetch', (req, res) => {
@@ -83,6 +85,47 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'listChecker.html'));
 })
+
+// fix this
+function extractZip() {
+    // extract file
+    yauzl.open(path.join(dataPath, 'unextracted', zipName), {lazyEntries: true}, (err, zipFile)=>{
+        if (err) throw err;
+        zipFile.readEntry();
+        zipFile.on("entry", function(entry) {
+            if (/\/$/.test(entry.fileName)) {
+                // Directory file names end with '/'.
+                // Note that entries for directories themselves are optional.
+                // An entry's fileName implicitly requires its parent directories to exist.
+                zipFile.readEntry();
+            } else {
+                // file entry
+                zipFile.openReadStream(entry, function(err, readStream) {
+                    if (err) throw err;
+                    readStream.on("end", function() {
+                        zipFile.readEntry();
+                    });
+                    
+                    const { finished } = require('stream');
+
+                    const destDir = 'C:\\Users\\huzai\\.vscode\\Projects\\JS\\listChecker\\data\\extracted';
+                    const writer = fs.createWriteStream(path.join(destDir, entry.fileName));
+
+                    readStream.pipe(writer);
+
+                    finished(readStream, (err) => {
+                        if (err) {
+                            console.error('### Streaming to writer failed: ', err);
+                        } else {
+                            console.log('### Streaming to writer succeeded, file unzipped.');
+                        }
+                    });
+                });
+            }
+        });
+    });
+}
+
 
 // works to stop code on uncaught errors
 process.on('uncaughtException', err =>{
