@@ -7,7 +7,9 @@ async function sendZip (){
     // this try catch stops the name from causing an error before tthe middleware gets to respond
     try {
         // NOTE: .item just used in node to get the name of the file from the myZip var
-        formData.append(myZip[Object.keys(myZip)].name , myZip[Object.keys(myZip)]);
+        // formData.append(myZip[Object.keys(myZip)].name , myZip[Object.keys(myZip)]);
+        formData.append('file', myZip[0]); // Use the first file in the FileList
+
     } catch{
         // next i need to check the file size limit functiin
     }

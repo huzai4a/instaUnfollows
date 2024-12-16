@@ -3,139 +3,173 @@ const fs = require('fs');
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const yauzl = require('yauzl');
+const { pipeline } = require('stream');
 const app = express();
 
-// NOTE: HAVING THE ABOVE NEXT IN THE FOR LOOP CAUSES IT TO PEND FOREVER (GENERALLY FOR ALL MIDDLEWARE)
+// Middleware imports
 const filesPayloadExists = require(path.join(__dirname, 'public', 'middleware', 'filesPayloadExists'));
-const fileSizeLimit = require(path.join(__dirname, 'public', 'middleware', 'fileSizeLimit'));
 const fileExtLimiter = require(path.join(__dirname, 'public', 'middleware', 'fileExtLimiter'));
+const fileSizeLimit = require(path.join(__dirname, 'public', 'middleware', 'fileSizeLimit'));
 const formatCheck = require(path.join(__dirname, 'public', 'middleware', 'formatCheck'));
 
-
-// used in both saving and accessing data files
+// Paths
 const dataPath = path.join(__dirname, 'data');
-let zipName = 'instagram-huzai4a-2024-08-17-T90Ye0vc.zip';
+const extractedPath = path.join(dataPath, 'extracted');
+const unextractedPath = path.join(dataPath, 'unextracted');
 
-// route for submitted files
-app.post('/api/uploadZip/instagram', 
-    fileUpload({ createParentPath: true }),
-    filesPayloadExists,
-    fileExtLimiter(['.zip','.rar','.7zip']), 
-    fileSizeLimit,
-    formatCheck,
-    (req, res) => {
+// Ensure directories exist
+fs.mkdirSync(extractedPath, { recursive: true });
+fs.mkdirSync(unextractedPath, { recursive: true });
+
+// Example ZIP name
+let zipName;
+// let zipName = 'instagram-huzai4a-2024-08-17-T90Ye0vc.zip';
+
+// Route for file upload
+app.post(
+  '/api/uploadZip/instagram',
+  fileUpload({ createParentPath: true }),
+  filesPayloadExists,
+  fileExtLimiter(['.zip', '.rar', '.7zip']),
+  fileSizeLimit,
+  formatCheck,
+  (req, res) => {
     const zip = req.files;
-    // zipName = zip[Object.keys(zip)].name;
-    /*
-    zip[Object.keys(zip)].mv(path.join(dataPath, 'unextracted'), (err) =>{
-        if(err) return res.status(500).json({ status: 'error', message: err})
-    });
-    */
 
-    // change message to name of zip extracted when done
-    return res.status(200).json({ status: 'success', message: 'logged'});
-});
+    // Save uploaded ZIP file
+    const uploadedFile = zip[Object.keys(zip)[0]];
+    zipName = uploadedFile.name;
+    const zipPath = path.join(unextractedPath, zipName);
 
-extractZip();
-
-// eventually i want the userhandle to be user selection (this is the initial step before making the submit form work)
-const userHandle = 'huzai4a';
-// NOTE: find can be used instead of forEach with if
-const selectedFile = fs.readdirSync(path.join(dataPath, 'extracted')).find(file => file.includes(userHandle));
-// console.log(selectedFile);
-
-//route for listchecker following fetch
-app.get('/api/following-fetch', (req, res) => {
-    if (selectedFile){
-        const followingObjects = JSON.parse(fs.readFileSync(path.join(dataPath, 'extracted', selectedFile, 'connections', 'followers_and_following', 'following.json'), 'utf8'));
-        return res.status(200).json({
-            status:'success',
-            message:'sent',
-            data: followingObjects
-        }); //send the followingObjects as JSON to listchecker
-    } else{
-        return res.status(400).json({
-            status:'error',
-            message:'there was an issue with the submitted file'
-        })
-    }
-});
-//route for listchecker followers fetch
-app.get('/api/followers-fetch', (req, res) => {
-    if (selectedFile){
-        const followersObjects = JSON.parse(fs.readFileSync(path.join(dataPath, 'extracted', selectedFile, 'connections', 'followers_and_following', 'followers_1.json'), 'utf8'));
-        return res.status(200).json({
-            status:'success',
-            message:'sent',
-            data: followersObjects
-        }); //send the followingObjects as JSON to listchecker
-    } else{
-        return res.status(400).json({
-            status:'error',
-            message:'there was an issue with the submitted file'
-        })
-    }
+    uploadedFile.mv(zipPath, (err) => {
+        if (err) {
+            return res.status(500).json({ status: 'error', message: err });
+        }
     
-});
+        // Call extractZip after upload
+        extractZip();
+    
+        res.status(200).json({ status: 'success', message: 'File uploaded' });
+    });
+    
+  }
+);
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-//route for main html file
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'listChecker.html'));
-})
-
-// fix this
+// Extract ZIP function
 function extractZip() {
-    // extract file
-    yauzl.open(path.join(dataPath, 'unextracted', zipName), {lazyEntries: true}, (err, zipFile)=>{
-        if (err) throw err;
+    const zipPath = path.join(unextractedPath, zipName);
+
+    yauzl.open(zipPath, { lazyEntries: true }, (err, zipFile) => {
+        if (err) {
+            console.error(`Error opening ZIP: ${err}`);
+            return;
+        }
+
         zipFile.readEntry();
-        zipFile.on("entry", function(entry) {
+
+        zipFile.on('entry', (entry) => {
+            const destPath = path.join(extractedPath, entry.fileName);
+
             if (/\/$/.test(entry.fileName)) {
-                // Directory file names end with '/'.
-                // Note that entries for directories themselves are optional.
-                // An entry's fileName implicitly requires its parent directories to exist.
+                // Directory entry
+                fs.mkdirSync(destPath, { recursive: true });
                 zipFile.readEntry();
             } else {
-                // file entry
-                zipFile.openReadStream(entry, function(err, readStream) {
-                    if (err) throw err;
-                    readStream.on("end", function() {
-                        zipFile.readEntry();
-                    });
-                    
-                    const { finished } = require('stream');
+                // File entry
+                zipFile.openReadStream(entry, (err, readStream) => {
+                    if (err) {
+                        console.error(`Error reading entry stream: ${err}`);
+                        return;
+                    }
 
-                    const destDir = 'C:\\Users\\huzai\\.vscode\\Projects\\JS\\listChecker\\data\\extracted';
-                    const writer = fs.createWriteStream(path.join(destDir, entry.fileName));
+                    // Ensure parent directory exists
+                    fs.mkdirSync(path.dirname(destPath), { recursive: true });
 
-                    readStream.pipe(writer);
-
-                    finished(readStream, (err) => {
+                    // Stream file contents to disk
+                    const writeStream = fs.createWriteStream(destPath);
+                    pipeline(readStream, writeStream, (err) => {
                         if (err) {
-                            console.error('### Streaming to writer failed: ', err);
+                            console.error(`Error writing file: ${err}`);
                         } else {
-                            console.log('### Streaming to writer succeeded, file unzipped.');
+                            console.log(`Extracted: ${destPath}`);
                         }
                     });
+
+                    readStream.on('end', () => zipFile.readEntry());
                 });
             }
+        });
+
+        zipFile.on('end', () => {
+            console.log('### ZIP extraction complete.');
+        });
+
+        zipFile.on('error', (err) => {
+            console.error(`Error during extraction: ${err}`);
         });
     });
 }
 
 
-// works to stop code on uncaught errors
-process.on('uncaughtException', err =>{
-    // create a page that you get pushed to when theres an error, or replace all the html on the page rn with an error message
-    console.log(`uncaught error, ${err}`);
-    process.exit(1);
-})
+// API routes
+app.get('/api/following-fetch', (req, res) => {
+  const userHandle = 'huzai4a';
+  const selectedFile = fs.readdirSync(extractedPath).find((file) => file.includes(userHandle));
 
-// server starting
-const PORT = process.env.port || 8000;
+  if (selectedFile) {
+    const filePath = path.join(extractedPath, selectedFile, 'connections', 'followers_and_following', 'following.json');
+    const followingObjects = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+    res.status(200).json({
+      status: 'success',
+      message: 'sent',
+      data: followingObjects,
+    });
+  } else {
+    res.status(400).json({
+      status: 'error',
+      message: 'No matching file found',
+    });
+  }
+});
+
+app.get('/api/followers-fetch', (req, res) => {
+  const userHandle = 'huzai4a';
+  const selectedFile = fs.readdirSync(extractedPath).find((file) => file.includes(userHandle));
+
+  if (selectedFile) {
+    const filePath = path.join(extractedPath, selectedFile, 'connections', 'followers_and_following', 'followers_1.json');
+    const followersObjects = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+    res.status(200).json({
+      status: 'success',
+      message: 'sent',
+      data: followersObjects,
+    });
+  } else {
+    res.status(400).json({
+      status: 'error',
+      message: 'No matching file found',
+    });
+  }
+});
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Main HTML route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'listChecker.html'));
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error(`Uncaught exception: ${err}`);
+  process.exit(1);
+});
+
+// Start the server
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
